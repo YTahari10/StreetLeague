@@ -1,0 +1,71 @@
+:host {
+  display: flex;
+  justify-content: center; /* centre horizontalement dans la page */
+  align-items: center;     /* centre verticalement la boite */
+  min-height: 90vh;
+  background-color: #f0f2f5;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 650px;
+  padding: 25px 30px;
+  color: #333;
+
+  display: flex;
+  flex-direction: column;   /* tout en colonne */
+  gap: 20px;
+
+  box-sizing: border-box;
+
+  /* IMPORTANT : */
+  justify-content: flex-start; /* contenu collé en haut */
+  align-items: center;         /* centre horizontalement les éléments */
+  max-height: 90vh;            /* limite hauteur */
+  overflow-y: auto;            /* scroll si nécessaire */
+}
+
+h2 {
+  font-weight: 600;
+  font-size: 1.8rem;
+  color: #222;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.form-inline, /* ici c’est la div contenant inputs + boutons */
+.d-flex {
+  display: flex;
+  flex-direction: column;  /* <-- important : place les inputs + boutons verticalement */
+  gap: 10px;
+  width: 100%;             /* prend toute la largeur */
+  align-items: center;     /* centre horizontalement */
+}
+
+.form-inline input.form-control {
+  width: 80%;              /* taille confortable des inputs */
+}
+
+button.btn-primary,
+button.btn-secondary {
+  width: auto;
+  align-self: center;      /* bouton centré horizontalement */
+}
+
+/* espace vertical entre inputs et bouton retour */
+.mb-4 {
+  margin-bottom: 1.5rem;
+}

@@ -1,0 +1,58 @@
+<div class="container mt-4">
+  <h2 class="mb-3">🧾 Mes événements</h2>
+
+  <button class="btn btn-primary mb-3" (click)="goToCreate()">
+    ➕ Créer un événement
+  </button>
+
+  <div class="mb-3">
+    <label for="sportFilter" class="form-label">🎯 Filtrer par sport :</label>
+    <select id="sportFilter" class="form-select" [(ngModel)]="selectedSport" (change)="filterEvents()">
+      <option value="">Tous</option>
+      <option *ngFor="let sport of sportsDisponibles" [value]="sport">
+        {{ getSportLabel(sport) }}
+      </option>
+    </select>
+  </div>
+
+  <div *ngFor="let event of filteredEvents" class="card mb-3 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title">
+        📌 {{ event.nom }} - {{ getSportLabel(event.sport) }}
+      </h5>
+      <p class="card-text">
+        📍 {{ event.lieu }} <br />
+        🕒 {{ event.dateHeure | date: 'short' }}
+      </p>
+
+      <button class="btn btn-sm btn-outline-primary me-2" (click)="onEdit(event.id)">
+        ✏️ Modifier
+      </button>
+      <button class="btn btn-sm btn-outline-danger me-2" (click)="onDelete(event.id)">
+        ❌ Supprimer
+      </button>
+      <button class="btn btn-sm btn-outline-success me-2" (click)="onShare(event)">
+        📤 Partager
+      </button>
+
+      <div class="mt-3">
+        <h6>📅 Matchs associés :</h6>
+        <div *ngIf="matchesByEvent[event.id]?.length; else noMatch">
+          <ul class="list-group">
+            <li *ngFor="let match of matchesByEvent[event.id]" class="list-group-item">
+              ⚔️ Match entre {{ match.equipe1Nom }} et {{ match.equipe2Nom }} - 🕒 {{ match.dateHeure | date: 'short' }}
+            </li>
+          </ul>
+        </div>
+        <ng-template #noMatch>
+          <p class="text-muted">Aucun match pour cet événement.</p>
+        </ng-template>
+
+        <button class="btn btn-outline-success btn-sm mt-2" (click)="addMatch(event.id)">
+          ➕ Ajouter un match
+        </button>
+        <button type="button" class="btn btn-outline-success btn-sm mt-2" (click)="goToList(event.id)">Voir la liste des matchs</button>
+      </div>
+    </div>
+  </div>
+</div>

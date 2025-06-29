@@ -1,0 +1,44 @@
+<div class="event-form-container">
+  <h2>{{ isEditMode ? 'Modifier un événement' : 'Créer un nouvel événement' }}</h2>
+
+  <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" novalidate>
+
+    <label for="nom">Nom *</label>
+    <input id="nom" type="text" formControlName="nom" placeholder="Nom de l'événement" />
+    <div class="error" *ngIf="eventForm.get('nom')?.touched && eventForm.get('nom')?.invalid">
+      Le nom est obligatoire.
+    </div>
+
+    <label for="sport">Centre d’intérêt / Sport *</label>
+    <select id="sport" formControlName="sport">
+      <option value="">-- Sélectionner un sport --</option>
+      <option *ngFor="let s of sports" [value]="s">{{ s }}</option>
+    </select>
+    <div class="error" *ngIf="eventForm.get('sport')?.touched && eventForm.get('sport')?.invalid">
+      Le sport est obligatoire.
+    </div>
+
+    <label for="dateHeure">Date et heure *</label>
+    <input id="dateHeure" type="datetime-local" formControlName="dateHeure" />
+    <div class="error" *ngIf="eventForm.get('dateHeure')?.touched && eventForm.get('dateHeure')?.invalid">
+      La date et l'heure sont obligatoires.
+    </div>
+
+    <label for="lieu">Lieu *</label>
+    <input id="lieu" type="text" formControlName="lieu" placeholder="Lieu de l'événement" />
+    <div class="error" *ngIf="eventForm.get('lieu')?.touched && eventForm.get('lieu')?.invalid">
+      Le lieu est obligatoire.
+    </div>
+
+    <label for="description">Description</label>
+    <textarea id="description" formControlName="description" rows="4" placeholder="Description..."></textarea>
+    <div class="error" *ngIf="eventForm.get('description')?.touched && eventForm.get('description')?.invalid">
+      La description est obligatoire.
+    </div>
+
+    <div class="buttons">
+      <button type="submit" [disabled]="eventForm.invalid">{{ isEditMode ? 'Mettre à jour' : 'Créer' }}</button>
+      <button type="button" (click)="onCancel()">Annuler</button>
+    </div>
+  </form>
+</div>

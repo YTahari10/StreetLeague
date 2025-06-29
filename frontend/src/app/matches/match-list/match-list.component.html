@@ -1,0 +1,49 @@
+<div class="container">
+
+  <h2>Liste des matchs</h2>
+
+  <div class="table-responsive">
+    <table>
+      <thead>
+      <tr>
+        <th>Équipe 1</th>
+        <th>Équipe 2</th>
+        <th>Date & Heure</th>
+        <th>Lieu</th>
+        <th>Statut</th>
+        <th>Score Équipe 1</th>
+        <th>Score Équipe 2</th>
+        <th>Convocations</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let match of matches">
+        <td>{{ match.equipe1?.nom || 'Equipe non définie' }}</td>
+        <td>{{ match.equipe2?.nom || 'Equipe non définie' }}</td>
+        <td>{{ match.dateHeure | date:'short' }}</td>
+        <td>{{ match.lieu }}</td>
+        <td>{{ match.statut }}</td>
+        <td>{{ match.scoreEquipe1 }}</td>
+        <td>{{ match.scoreEquipe2 }}</td>
+        <td>
+          <ul>
+            <li *ngFor="let joueur of match.convocations">{{ joueur }}</li>
+          </ul>
+        </td>
+        <td *ngIf="match.id">
+          <button class="btn btn-sm btn-danger me-1" (click)="deleteMatch(match.id)">Supprimer</button>
+          <button class="btn btn-sm btn-primary me-1" (click)="goToEdit(match.id)">Modifier</button>
+          <button class="btn btn-sm btn-secondary" (click)="goToInvitations(match.id)">Inviter</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!--  <button class="btn-create" (click)="goToCreate()">Créer un nouveau match</button> -->
+  <button class="btn btn-secondary" (click)="goToEvents()">
+    ← Retour aux événements
+  </button>
+
+ </div>

@@ -1,0 +1,221 @@
+<h2 class="mb-4">🏆 Modifier un match</h2>
+
+<form [formGroup]="matchForm" (ngSubmit)="onSubmit()" novalidate>
+
+  <div class="mb-3" [ngClass]="{'is-invalid': submitted && matchForm.get('equipe1Id')?.invalid || submitted && matchForm.errors?.['equipesIdentiques']}">
+    <label for="equipe1" class="form-label">Équipe 1 :</label>
+    <select id="equipe1" class="form-control" formControlName="equipe1Id">
+      <option value="">-- Sélectionnez une équipe --</option>
+      <option *ngFor="let eq of equipes" [value]="eq.id">{{ eq.nom }}</option>
+    </select>
+    <div *ngIf="submitted && matchForm.get('equipe1Id')?.invalid" class="invalid-feedback">
+      Ce champ est requis.
+    </div>
+  </div>
+
+  <div class="mb-3" [ngClass]="{'is-invalid': submitted && matchForm.get('equipe2Id')?.invalid || submitted && matchForm.errors?.['equipesIdentiques']}">
+    <label for="equipe2" class="form-label">Équipe 2 :</label>
+    <select id="equipe2" class="form-control" formControlName="equipe2Id">
+      <option value="">-- Sélectionnez une équipe --</option>
+      <option *ngFor="let eq of equipes" [value]="eq.id">{{ eq.nom }}</option>
+    </select>
+    <div *ngIf="submitted && matchForm.get('equipe2Id')?.invalid" class="invalid-feedback">
+      Ce champ est requis.
+    </div>
+  </div>
+
+  <div *ngIf="submitted && matchForm.errors?.['equipesIdentiques']" class="alert alert-danger">
+    Les équipes doivent être différentes.
+  </div>
+
+  <div class="mb-3">
+    <label for="dateHeure" class="form-label">Date & Heure :</label>
+    <input id="dateHeure" type="datetime-local" class="form-control" formControlName="dateHeure"
+           [ngClass]="{'is-invalid': submitted && matchForm.get('dateHeure')?.invalid}" />
+    <div *ngIf="submitted && matchForm.get('dateHeure')?.invalid" class="invalid-feedback">
+      Ce champ est requis.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="lieu" class="form-label">Lieu :</label>
+    <input id="lieu" type="text" class="form-control" formControlName="lieu"
+           [ngClass]="{'is-invalid': submitted && matchForm.get('lieu')?.invalid}" />
+    <div *ngIf="submitted && matchForm.get('lieu')?.invalid" class="invalid-feedback">
+      Ce champ est requis.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="statut" class="form-label">Statut :</label>
+    <input id="statut" type="text" class="form-control" formControlName="statut"
+           [ngClass]="{'is-invalid': submitted && matchForm.get('statut')?.invalid}" />
+    <div *ngIf="submitted && matchForm.get('statut')?.invalid" class="invalid-feedback">
+      Ce champ est requis.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="scoreEquipe1" class="form-label">Score Équipe 1 :</label>
+    <input id="scoreEquipe1" type="number" class="form-control" formControlName="scoreEquipe1"
+           [ngClass]="{'is-invalid': submitted && matchForm.get('scoreEquipe1')?.invalid}" />
+    <div *ngIf="submitted && matchForm.get('scoreEquipe1')?.invalid" class="invalid-feedback">
+      Score requis et doit être ≥ 0.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="scoreEquipe2" class="form-label">Score Équipe 2 :</label>
+    <input id="scoreEquipe2" type="number" class="form-control" formControlName="scoreEquipe2"
+           [ngClass]="{'is-invalid': submitted && matchForm.get('scoreEquipe2')?.invalid}" />
+    <div *ngIf="submitted && matchForm.get('scoreEquipe2')?.invalid" class="invalid-feedback">
+      Score requis et doit être ≥ 0.
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label for="convocations" class="form-label">Convocations (séparées par virgule) :</label>
+    <input id="convocations" type="text" class="form-control" formControlName="convocations" />
+  </div>
+
+  <button type="submit" class="btn btn-primary me-2">Modifier</button>
+  <button type="button" class="btn btn-secondary" (click)="router.navigate(['/matches'])">← Retour à la liste</button>
+
+</form>
+
+<div *ngIf="successMessage" class="alert alert-success mt-3">
+  {{ successMessage }}
+</div>
+
+<!-- Fonts & Style -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto&display=swap" rel="stylesheet">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto&display=swap');
+
+  body {
+    background: radial-gradient(circle at top left, #34495e, #2c3e50);
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  h2 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 36px;
+    color: #2c3e50;
+    margin: 30px auto 20px auto;
+    text-align: center;
+    letter-spacing: 1.5px;
+  }
+
+  form {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.12);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 700px;
+    margin: auto;
+    animation: fadeInUp 0.8s ease;
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .is-invalid {
+    border-color: #e74c3c !important;
+    background-color: #fff0f0;
+    animation: shake 0.3s;
+  }
+
+  @keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    50% { transform: translateX(5px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+  }
+
+  .invalid-feedback {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    margin-top: -10px;
+    margin-bottom: 12px;
+  }
+
+  input[type="text"],
+  input[type="datetime-local"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    border: 1.5px solid #bdc3c7;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fdfdfd;
+    color: #000;
+  }
+
+  input:focus, select:focus {
+    border-color: #00c6ff;
+    box-shadow: 0 0 6px rgba(0, 198, 255, 0.4);
+    outline: none;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    color:  #2c3e50;
+  }
+
+  button[type="submit"],
+  button[type="button"] {
+    cursor: pointer;
+    background-color: #2980b9;
+    border: none;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 8px rgba(41, 128, 185, 0.5);
+  }
+
+  button[type="submit"]:hover {
+    background: #00c6ff;
+    transform: scale(1.05);
+    box-shadow: 0 0 16px #00c6ff;
+  }
+
+  button[type="button"] {
+    background-color: #7f8c8d;
+  }
+
+  button[type="button"]:hover {
+    background-color: #636e72;
+    transform: scale(1.05);
+  }
+
+  .alert-success {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 12px;
+    background-color: #2c3e50;
+    color: white;
+    text-align: center;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+</style>
