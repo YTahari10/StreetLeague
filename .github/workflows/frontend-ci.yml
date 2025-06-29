@@ -1,32 +1,63 @@
-name: Build Frontend
+name: Frontend CI
+
+
 
 on:
+
   push:
+
     paths:
+
       - 'frontend/**'
+
   pull_request:
+
     paths:
+
       - 'frontend/**'
+
+
 
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: frontend
+
+
     steps:
-      - name: Checkout repo
+
+      - name: Checkout du code
+
         uses: actions/checkout@v3
 
-      - name: Use Node.js
+
+
+      - name: Setup Node.js
+
         uses: actions/setup-node@v3
+
         with:
+
           node-version: '18'
 
+
+
       - name: Install dependencies
-        run: npm install
 
-      - name: Build Angular App
-        run: npm run build
+        run: |
 
+          cd frontend
+
+          npm install
+
+
+
+      - name: Build Angular app
+
+        run: |
+
+          cd frontend
+
+          npm run build
