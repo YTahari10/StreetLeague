@@ -1,63 +1,29 @@
 name: Frontend CI
 
-
-
 on:
-
   push:
-
     branches:
-
       - main
 
-  pull_request:
-
-    paths:
-
-      - 'frontend/**'
-
-
-
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
-
+    defaults:
+      run:
+        working-directory: ./frontend
 
     steps:
-
-      - name: Checkout du code
-
+      - name: Checkout source
         uses: actions/checkout@v3
 
-
-
       - name: Setup Node.js
-
         uses: actions/setup-node@v3
-
         with:
-
-          node-version: '18'
-
-
+          node-version: '20'
 
       - name: Install dependencies
-
-        run: |
-
-          cd frontend
-
-          npm install
-
-
+        run: npm install
 
       - name: Build Angular app
-
-        run: |
-
-          cd frontend
-
-          npm run build
+        run: npm run build
