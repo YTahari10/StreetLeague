@@ -6,9 +6,9 @@ on:
 
   push:
 
-    paths:
+    branches:
 
-      - 'frontend/**'
+      - main
 
   pull_request:
 
