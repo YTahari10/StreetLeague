@@ -35,7 +35,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image frontend
-        run: docker build -t ytahari150/frontend:latest .
+        run: docker build -t ytahari150/frontend:latest -f Dockerfile .
 
       - name: Push Docker image frontend
         run: docker push ytahari150/frontend:latest
