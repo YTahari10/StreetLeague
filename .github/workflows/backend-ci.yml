@@ -28,13 +28,13 @@ jobs:
 
     steps:
 
-      - name: Checkout du code
+      - name: Checkout code
 
         uses: actions/checkout@v3
 
 
 
-      - name: Setup Java
+      - name: Set up Java
 
         uses: actions/setup-java@v3
 
@@ -46,10 +46,6 @@ jobs:
 
 
 
-      - name: Build avec Maven
+      - name: Build backend with Maven
 
-        run: |
-
-          cd backend
-
-          ./mvnw clean install
+        run: mvn -f backend/pom.xml clean install
