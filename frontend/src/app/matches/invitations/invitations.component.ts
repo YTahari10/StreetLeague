@@ -18,6 +18,9 @@ export class InvitationsComponent implements OnInit {
 
   matchId!: string;
   invitations: Invitation[] = [];
+  loading = false;
+  autoRefresh = true;
+  refreshInterval: any;
 
   newInvitation: Invitation = { nom: '', email: '', statut: 'En attente' };
 
@@ -27,14 +30,60 @@ export class InvitationsComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.matchId = params.get('matchId') || '';
       this.loadInvitations();
+      this.startAutoRefresh();
     });
   }
 
+  ngOnDestroy(): void {
+    this.stopAutoRefresh();
+  }
+
   loadInvitations() {
+    this.loading = true;
     this.invitationService.getInvitationsByMatchId(this.matchId).subscribe({
-      next: (data) => this.invitations = data,
-      error: () => alert('Erreur lors du chargement des invitations.')
+      next: (data) => {
+        this.invitations = data;
+        this.loading = false;
+        console.log('Invitations loaded:', data);
+      },
+      error: (error) => {
+        console.error('Error loading invitations:', error);
+        this.loading = false;
+        alert('Erreur lors du chargement des invitations.');
+      }
     });
+  }
+
+  refreshInvitations() {
+    console.log('Refreshing invitations...');
+    this.loadInvitations();
+  }
+
+  startAutoRefresh() {
+    if (this.autoRefresh) {
+      this.refreshInterval = setInterval(() => {
+        this.loadInvitations();
+      }, 10000); // Refresh every 10 seconds
+    }
+  }
+
+  stopAutoRefresh() {
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
+  }
+
+  toggleAutoRefresh() {
+    this.autoRefresh = !this.autoRefresh;
+    if (this.autoRefresh) {
+      this.startAutoRefresh();
+    } else {
+      this.stopAutoRefresh();
+    }
+  }
+
+  getStatusCount(status: string): number {
+    return this.invitations.filter(inv => inv.statut === status).length;
   }
 
   addInvitation() {

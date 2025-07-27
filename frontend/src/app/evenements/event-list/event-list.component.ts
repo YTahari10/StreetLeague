@@ -6,6 +6,7 @@ import { MatchService } from '../../matches/match.service';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-event-list',
@@ -19,17 +20,29 @@ export class EventListComponent implements OnInit {
   filteredEvents: Event[] = [];
   selectedSport: string = '';
   sportsDisponibles: string[] = [];
+  currentUser: any;
 
   matchesByEvent: { [eventId: string]: Match[] } = {};
 
   constructor(
     private eventService: EventService,
     private matchService: MatchService,
-    private router: Router
+    private router: Router,
+    public authService: AuthService  // Inject AuthService for role checking
   ) {}
 
   ngOnInit(): void {
+    this.loadUserData();
     this.loadEvents();
+  }
+
+  loadUserData() {
+    // Get current user data (you can replace this with actual user data from Keycloak)
+    this.currentUser = {
+      firstName: 'User',
+      lastName: 'StreetLeague',
+      role: this.authService.getPrimaryRole()
+    };
   }
 
   loadEvents(): void {
@@ -55,7 +68,9 @@ export class EventListComponent implements OnInit {
         console.log('Sports disponibles:', this.sportsDisponibles);
 
         for (const event of data) {
-          this.loadMatchesForEvent(event.id);
+          if (event.id) {
+            this.loadMatchesForEvent(event.id);
+          }
         }
       },
       error: (err: any) => {
@@ -102,9 +117,6 @@ export class EventListComponent implements OnInit {
     }
   }
 
-  onShare(event: Event): void {
-    alert(`Lien de partage généré pour : ${event.nom}`);
-  }
 
   addMatch(eventId: string): void {
     this.router.navigate(['matches/new/:eventId'], { queryParams: { eventId } });
@@ -112,10 +124,15 @@ export class EventListComponent implements OnInit {
 
   sportIcons: { [key: string]: string } = {
     'football': '⚽',
-    'basket': '🏀',
+    'basketball': '🏀',
     'tennis': '🎾',
-    'musculation': '🏋️‍♂️',  // Icône haltérophilie (musculation)
-    'natation': '🏊‍♂️',     // Icône nageur (natation)
+    'volleyball': '🏐',
+    'natation': '🏊‍♂️',
+    'musculation': '🏋️‍♂️',
+    'running': '🏃‍♂️',
+    'cycling': '🚴‍♂️',
+    // Legacy support
+    'basket': '🏀'
   };
 
   getSportLabel(sport: string): string {
@@ -126,6 +143,18 @@ export class EventListComponent implements OnInit {
     const displaySport = cleanSport.charAt(0).toUpperCase() + cleanSport.slice(1);
 
     return `${this.sportIcons[cleanSport] ?? ''} ${displaySport}`;
+  }
+
+  getSportIcon(sport: string): string {
+    if (!sport) return '🏃‍♂️';
+    const cleanSport = sport.trim().toLowerCase().replace(/^"|"$/g, '');
+    return this.sportIcons[cleanSport] ?? '🏃‍♂️';
+  }
+
+  getSportName(sport: string): string {
+    if (!sport) return 'Sport';
+    const cleanSport = sport.trim().toLowerCase().replace(/^"|"$/g, '');
+    return cleanSport.charAt(0).toUpperCase() + cleanSport.slice(1);
   }
   goToList(eventId: string): void {
     this.router.navigate(['/matches'], { queryParams: { eventId } });

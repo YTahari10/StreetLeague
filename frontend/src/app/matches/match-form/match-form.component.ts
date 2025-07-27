@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 
 interface Equipe {
@@ -12,7 +12,7 @@ interface Equipe {
 @Component({
   selector: 'app-match-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, HttpClientModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './match-form.component.html',
   styleUrls: ['./match-form.component.css']
 })
@@ -22,6 +22,7 @@ export class MatchFormComponent implements OnInit {
   successMessage = '';
   equipes: Equipe[] = [];
   eventId: string | null = null;
+  isEditMode = false;
 
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
@@ -32,11 +33,11 @@ export class MatchFormComponent implements OnInit {
     this.matchForm = this.fb.group({
       equipe1: ['', Validators.required],
       equipe2: ['', Validators.required],
-      dateHeure: ['', Validators.required],
-      lieu: ['', Validators.required],
+      dateHeure: ['', [Validators.required, this.futureDateValidator]],
+      lieu: ['', [Validators.required, Validators.minLength(3)]],
       statut: ['', Validators.required],
-      scoreEquipe1: [0, Validators.required],
-      scoreEquipe2: [0, Validators.required],
+      scoreEquipe1: [0],
+      scoreEquipe2: [0],
       convocations: [''],
       eventId: ['']
     });
@@ -105,7 +106,28 @@ export class MatchFormComponent implements OnInit {
   goToList(): void {
     this.router.navigate(['/matches']);
   }
+
+  // Custom validator for future dates
+  futureDateValidator(control: any) {
+    if (!control.value) {
+      return null; // Don't validate if empty (let required validator handle it)
+    }
+    
+    const selectedDate = new Date(control.value);
+    const now = new Date();
+    
+    // Set current time to start of today for comparison
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    if (selectedDate <= now) {
+      return { pastDate: true };
+    }
+    
+    return null;
+  }
+
   goBackToEvents(): void {
-    this.router.navigate(['/evenements']);  // <-- ici le bon path, en français
+    this.router.navigate(['/evenements']);
   }
 }

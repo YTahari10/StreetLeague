@@ -6,11 +6,13 @@ export interface Match {
 }
 
 export interface Event {
-  id: string;
+  id?: string;
   nom: string;
   sport: string;
   lieu: string;
   dateHeure: string;
-  description?: string;
+  dateDebut?: string;
+  dateFin?: string;
+  description: string;
   matchs?: Match[]; // ⬅️ Ajouté ici
 }

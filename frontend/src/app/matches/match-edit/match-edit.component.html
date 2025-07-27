@@ -1,87 +1,163 @@
-<h2 class="mb-4">🏆 Modifier un match</h2>
+<div class="form-container">
+  <h2 class="mb-4">
+    <i class="fas fa-futbol me-2"></i>
+    <span *ngIf="!isViewOnlyMode">Modifier le Match</span>
+    <span *ngIf="isViewOnlyMode">Détails du Match</span>
+  </h2>
 
-<form [formGroup]="matchForm" (ngSubmit)="onSubmit()" novalidate>
-
-  <div class="mb-3" [ngClass]="{'is-invalid': submitted && matchForm.get('equipe1Id')?.invalid || submitted && matchForm.errors?.['equipesIdentiques']}">
-    <label for="equipe1" class="form-label">Équipe 1 :</label>
-    <select id="equipe1" class="form-control" formControlName="equipe1Id">
-      <option value="">-- Sélectionnez une équipe --</option>
-      <option *ngFor="let eq of equipes" [value]="eq.id">{{ eq.nom }}</option>
-    </select>
-    <div *ngIf="submitted && matchForm.get('equipe1Id')?.invalid" class="invalid-feedback">
-      Ce champ est requis.
+  <!-- View-only summary card -->
+  <div *ngIf="isViewOnlyMode && matchData" class="match-summary-card mb-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">🏆 {{ getTeamName(matchData.equipe1Id) }} vs {{ getTeamName(matchData.equipe2Id) }}</h5>
+        <div class="row">
+          <div class="col-md-6">
+            <p><strong>📅 Date:</strong> {{ matchData.dateHeure | date:'medium' }}</p>
+            <p><strong>📍 Lieu:</strong> {{ matchData.lieu }}</p>
+            <p><strong>📊 Statut:</strong> {{ matchData.statut }}</p>
+          </div>
+          <div class="col-md-6">
+            <p><strong>🏅 Score:</strong> {{ matchData.scoreEquipe1 }} - {{ matchData.scoreEquipe2 }}</p>
+            <p *ngIf="matchData.convocations && matchData.convocations.length > 0">
+              <strong>👥 Convocations:</strong> {{ matchData.convocations.join(', ') }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="mb-3" [ngClass]="{'is-invalid': submitted && matchForm.get('equipe2Id')?.invalid || submitted && matchForm.errors?.['equipesIdentiques']}">
-    <label for="equipe2" class="form-label">Équipe 2 :</label>
-    <select id="equipe2" class="form-control" formControlName="equipe2Id">
-      <option value="">-- Sélectionnez une équipe --</option>
-      <option *ngFor="let eq of equipes" [value]="eq.id">{{ eq.nom }}</option>
-    </select>
-    <div *ngIf="submitted && matchForm.get('equipe2Id')?.invalid" class="invalid-feedback">
-      Ce champ est requis.
+  <!-- Navigation button for view-only mode -->
+  <div *ngIf="isViewOnlyMode" class="text-center mt-4">
+    <button type="button" class="btn btn-secondary btn-lg" (click)="router.navigate(['/matches'])">
+      ← Retour à la liste des matchs
+    </button>
+  </div>
+
+  <!-- Form only shown in edit mode -->
+  <form *ngIf="!isViewOnlyMode" [formGroup]="matchForm" (ngSubmit)="onSubmit()" class="modern-form" novalidate>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="equipe1" class="form-label">Équipe 1 *</label>
+        <select id="equipe1" class="form-select" formControlName="equipe1Id"
+                [ngClass]="{'is-invalid': submitted && (matchForm.get('equipe1Id')?.invalid || matchForm.errors?.['equipesIdentiques'])}">
+          <option value="">-- Sélectionnez une équipe --</option>
+          <option *ngFor="let eq of equipes" [value]="eq.id">{{ eq.nom }}</option>
+        </select>
+        <div *ngIf="submitted && matchForm.get('equipe1Id')?.invalid" class="invalid-feedback">
+          Ce champ est requis.
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="equipe2" class="form-label">Équipe 2 *</label>
+        <select id="equipe2" class="form-select" formControlName="equipe2Id"
+                [ngClass]="{'is-invalid': submitted && (matchForm.get('equipe2Id')?.invalid || matchForm.errors?.['equipesIdentiques'])}">
+          <option value="">-- Sélectionnez une équipe --</option>
+          <option *ngFor="let eq of equipes" [value]="eq.id">{{ eq.nom }}</option>
+        </select>
+        <div *ngIf="submitted && matchForm.get('equipe2Id')?.invalid" class="invalid-feedback">
+          Ce champ est requis.
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div *ngIf="submitted && matchForm.errors?.['equipesIdentiques']" class="alert alert-danger">
-    Les équipes doivent être différentes.
-  </div>
-
-  <div class="mb-3">
-    <label for="dateHeure" class="form-label">Date & Heure :</label>
-    <input id="dateHeure" type="datetime-local" class="form-control" formControlName="dateHeure"
-           [ngClass]="{'is-invalid': submitted && matchForm.get('dateHeure')?.invalid}" />
-    <div *ngIf="submitted && matchForm.get('dateHeure')?.invalid" class="invalid-feedback">
-      Ce champ est requis.
+    <div *ngIf="submitted && matchForm.errors?.['equipesIdentiques']" class="alert alert-danger mb-3">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      Les équipes doivent être différentes.
     </div>
-  </div>
 
-  <div class="mb-3">
-    <label for="lieu" class="form-label">Lieu :</label>
-    <input id="lieu" type="text" class="form-control" formControlName="lieu"
-           [ngClass]="{'is-invalid': submitted && matchForm.get('lieu')?.invalid}" />
-    <div *ngIf="submitted && matchForm.get('lieu')?.invalid" class="invalid-feedback">
-      Ce champ est requis.
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="dateHeure" class="form-label">Date & Heure *</label>
+        <input id="dateHeure" type="datetime-local" class="form-control" formControlName="dateHeure"
+               [ngClass]="{'is-invalid': submitted && matchForm.get('dateHeure')?.invalid}" />
+        <div *ngIf="submitted && matchForm.get('dateHeure')?.invalid" class="invalid-feedback">
+          <div *ngIf="matchForm.get('dateHeure')?.errors?.['required']">
+            Ce champ est requis.
+          </div>
+          <div *ngIf="matchForm.get('dateHeure')?.errors?.['pastDate']">
+            <i class="fas fa-exclamation-triangle me-1"></i>
+            La date ne peut pas être dans le passé.
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="lieu" class="form-label">Lieu *</label>
+        <input id="lieu" type="text" class="form-control" formControlName="lieu"
+               [ngClass]="{'is-invalid': submitted && matchForm.get('lieu')?.invalid}" />
+        <div *ngIf="submitted && matchForm.get('lieu')?.invalid" class="invalid-feedback">
+          <div *ngIf="matchForm.get('lieu')?.errors?.['required']">
+            Ce champ est requis.
+          </div>
+          <div *ngIf="matchForm.get('lieu')?.errors?.['minlength']">
+            Le lieu doit contenir au moins 3 caractères.
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="mb-3">
-    <label for="statut" class="form-label">Statut :</label>
-    <input id="statut" type="text" class="form-control" formControlName="statut"
-           [ngClass]="{'is-invalid': submitted && matchForm.get('statut')?.invalid}" />
-    <div *ngIf="submitted && matchForm.get('statut')?.invalid" class="invalid-feedback">
-      Ce champ est requis.
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="statut" class="form-label">Statut *</label>
+        <select id="statut" class="form-select" formControlName="statut"
+                [ngClass]="{'is-invalid': submitted && matchForm.get('statut')?.invalid}">
+          <option value="">-- Sélectionnez le statut --</option>
+          <option value="scheduled">Prévu</option>
+          <option value="completed">Terminé</option>
+          <option value="cancelled">Annulé</option>
+        </select>
+        <div *ngIf="submitted && matchForm.get('statut')?.invalid" class="invalid-feedback">
+          Ce champ est requis.
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="convocations" class="form-label">Convocations (séparées par virgule)</label>
+        <input id="convocations" type="text" class="form-control" formControlName="convocations" />
+        <div class="form-text">
+          Ex: joueur1&#64;exemple.com, joueur2&#64;exemple.com
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="mb-3">
-    <label for="scoreEquipe1" class="form-label">Score Équipe 1 :</label>
-    <input id="scoreEquipe1" type="number" class="form-control" formControlName="scoreEquipe1"
-           [ngClass]="{'is-invalid': submitted && matchForm.get('scoreEquipe1')?.invalid}" />
-    <div *ngIf="submitted && matchForm.get('scoreEquipe1')?.invalid" class="invalid-feedback">
-      Score requis et doit être ≥ 0.
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="scoreEquipe1" class="form-label">Score Équipe 1</label>
+        <input id="scoreEquipe1" type="number" class="form-control" formControlName="scoreEquipe1"
+               [ngClass]="{'is-invalid': submitted && matchForm.get('scoreEquipe1')?.invalid}" />
+        <div *ngIf="submitted && matchForm.get('scoreEquipe1')?.invalid" class="invalid-feedback">
+          Le score doit être ≥ 0.
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="scoreEquipe2" class="form-label">Score Équipe 2</label>
+        <input id="scoreEquipe2" type="number" class="form-control" formControlName="scoreEquipe2"
+               [ngClass]="{'is-invalid': submitted && matchForm.get('scoreEquipe2')?.invalid}" />
+        <div *ngIf="submitted && matchForm.get('scoreEquipe2')?.invalid" class="invalid-feedback">
+          Le score doit être ≥ 0.
+        </div>
+      </div>
     </div>
-  </div>
 
-  <div class="mb-3">
-    <label for="scoreEquipe2" class="form-label">Score Équipe 2 :</label>
-    <input id="scoreEquipe2" type="number" class="form-control" formControlName="scoreEquipe2"
-           [ngClass]="{'is-invalid': submitted && matchForm.get('scoreEquipe2')?.invalid}" />
-    <div *ngIf="submitted && matchForm.get('scoreEquipe2')?.invalid" class="invalid-feedback">
-      Score requis et doit être ≥ 0.
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary btn-lg me-3" [disabled]="isSubmitting">
+        <i class="fas fa-save me-2"></i>
+        <span *ngIf="!isSubmitting">Modifier le Match</span>
+        <span *ngIf="isSubmitting">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          Modification...
+        </span>
+      </button>
+      
+      <button type="button" class="btn btn-outline-secondary btn-lg" (click)="router.navigate(['/matches'])" [disabled]="isSubmitting">
+        <i class="fas fa-times me-2"></i>
+        Annuler
+      </button>
     </div>
-  </div>
-
-  <div class="mb-3">
-    <label for="convocations" class="form-label">Convocations (séparées par virgule) :</label>
-    <input id="convocations" type="text" class="form-control" formControlName="convocations" />
-  </div>
-
-  <button type="submit" class="btn btn-primary me-2">Modifier</button>
-  <button type="button" class="btn btn-secondary" (click)="router.navigate(['/matches'])">← Retour à la liste</button>
-
-</form>
+  </form>
 
 <div *ngIf="successMessage" class="alert alert-success mt-3">
   {{ successMessage }}
@@ -217,5 +293,32 @@
     text-align: center;
     border-radius: 10px;
     font-weight: 600;
+  }
+
+  .match-summary-card {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  
+  .match-summary-card .card {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .match-summary-card .card-body {
+    color: #2c3e50;
+  }
+  
+  .match-summary-card .card-title {
+    color: #2c3e50;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .match-summary-card p {
+    margin-bottom: 8px;
+    color: #2c3e50;
   }
 </style>

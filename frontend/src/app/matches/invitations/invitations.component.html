@@ -1,57 +1,176 @@
-<div class="container">
-  <h2 class="mb-4">Gestion des Invitations</h2>
+<div class="invitation-page">
+  <div class="container">
+    <div class="form-card">
+      <div class="form-header">
+        <h1 class="form-title">
+          <i class="fas fa-envelope-open-text me-3"></i>
+          Gestion des Invitations
+        </h1>
+        <p class="form-subtitle">Gérez les invitations pour ce match</p>
+      </div>
 
-  <!-- Table liste -->
-  <table class="table table-striped mb-4">
-    <thead>
-    <tr>
-      <th>Nom</th>
-      <th>Email</th>
-      <th>Statut</th>
-      <th>Actions</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let invite of invitations">
-      <td>{{ invite.nom }}</td>
-      <td>{{ invite.email }}</td>
-      <td>
-          <span [ngClass]="{
-            'badge bg-success': invite.statut === 'Acceptée',
-            'badge bg-danger': invite.statut === 'Refusée',
-            'badge bg-warning text-dark': invite.statut === 'En attente'
-          }">
-            {{ invite.statut }}
-          </span>
-      </td>
-      <td>
-        <button class="btn btn-sm btn-danger" (click)="removeInvitation(invite)">Supprimer</button>
-      </td>
-    </tr>
-    </tbody>
-  </table>
+      <!-- Status Summary -->
+      <div class="status-summary mb-4">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="status-card status-pending">
+              <i class="fas fa-clock"></i>
+              <div class="status-info">
+                <span class="status-count">{{ getStatusCount('En attente') }}</span>
+                <span class="status-label">En attente</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="status-card status-accepted">
+              <i class="fas fa-check-circle"></i>
+              <div class="status-info">
+                <span class="status-count">{{ getStatusCount('Acceptée') }}</span>
+                <span class="status-label">Acceptées</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="status-card status-rejected">
+              <i class="fas fa-times-circle"></i>
+              <div class="status-info">
+                <span class="status-count">{{ getStatusCount('Refusée') }}</span>
+                <span class="status-label">Refusées</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="status-card status-total">
+              <i class="fas fa-envelope"></i>
+              <div class="status-info">
+                <span class="status-count">{{ invitations.length }}</span>
+                <span class="status-label">Total</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <!-- Formulaire (en ligne) -->
-  <div class="d-flex gap-2 mb-4">
-    <input
-      [(ngModel)]="newInvitation.nom"
-      placeholder="Nom"
-      class="form-control"
-      type="text"
-      required
-    />
-    <input
-      [(ngModel)]="newInvitation.email"
-      placeholder="Email"
-      class="form-control"
-      type="email"
-      required
-    />
-    <button class="btn btn-primary" (click)="addInvitation()">Ajouter</button>
-  </div>
+      <!-- Liste des invitations -->
+      <div class="invitations-section">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="section-title mb-0">
+            <i class="fas fa-users me-2"></i>
+            Invitations envoyées
+          </h3>
+          <div class="refresh-controls">
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="refreshInvitations()" [disabled]="loading">
+              <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+              {{ loading ? 'Actualisation...' : 'Actualiser' }}
+            </button>
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="autoRefresh" 
+                     [(ngModel)]="autoRefresh" (change)="toggleAutoRefresh()">
+              <label class="form-check-label" for="autoRefresh">
+                Auto-actualisation
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="table-container">
+          <table class="modern-table">
+            <thead>
+              <tr>
+                <th><i class="fas fa-user me-2"></i>Nom</th>
+                <th><i class="fas fa-envelope me-2"></i>Email</th>
+                <th><i class="fas fa-info-circle me-2"></i>Statut</th>
+                <th><i class="fas fa-cog me-2"></i>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let invite of invitations" class="table-row">
+                <td class="table-cell">
+                  <span class="cell-content">{{ invite.nom }}</span>
+                </td>
+                <td class="table-cell">
+                  <span class="cell-content">{{ invite.email }}</span>
+                </td>
+                <td class="table-cell">
+                  <span [ngClass]="{
+                    'status-badge status-accepted': invite.statut === 'Acceptée',
+                    'status-badge status-rejected': invite.statut === 'Refusée',
+                    'status-badge status-pending': invite.statut === 'En attente'
+                  }">
+                    <i class="fas" [ngClass]="{
+                      'fa-check-circle': invite.statut === 'Acceptée',
+                      'fa-times-circle': invite.statut === 'Refusée',
+                      'fa-clock': invite.statut === 'En attente'
+                    }" style="margin-right: 5px;"></i>
+                    {{ invite.statut }}
+                  </span>
+                </td>
+                <td class="table-cell">
+                  <button class="btn-remove" (click)="removeInvitation(invite)">
+                    <i class="fas fa-trash-alt me-2"></i>
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-  <!-- Bouton retour -->
-  <div class="mb-4">
-    <button class="btn btn-secondary" [routerLink]="['/matches']">← Retour aux matchs</button>
+      <!-- Formulaire d'ajout -->
+      <div class="add-invitation-section">
+        <h3 class="section-title">
+          <i class="fas fa-plus-circle me-2"></i>
+          Ajouter une invitation
+        </h3>
+        
+        <div class="invitation-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-user me-2"></i>
+                Nom du participant
+              </label>
+              <input
+                [(ngModel)]="newInvitation.nom"
+                placeholder="Entrez le nom complet"
+                class="form-input"
+                type="text"
+                required
+              />
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-envelope me-2"></i>
+                Adresse email
+              </label>
+              <input
+                [(ngModel)]="newInvitation.email"
+                placeholder="exemple@email.com"
+                class="form-input"
+                type="email"
+                required
+              />
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button class="btn-add" (click)="addInvitation()">
+              <i class="fas fa-paper-plane me-2"></i>
+              Envoyer l'invitation
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions principales -->
+      <div class="main-actions">
+        <button class="btn-back" [routerLink]="['/matches']">
+          <i class="fas fa-arrow-left me-2"></i>
+          Retour aux matchs
+        </button>
+      </div>
+    </div>
   </div>
 </div>

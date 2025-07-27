@@ -1,12 +1,21 @@
 import { bootstrapApplication } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';  // <-- importe ceci
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app/app.routes';
+import { authInterceptor } from './app/auth.interceptor';
 import { AppComponent } from './app/app.component';
+import { FormsModule } from '@angular/forms';
+import { importProvidersFrom } from '@angular/core';
 
-bootstrapApplication(AppComponent, {
-  providers: [
-    provideRouter(routes),
-    provideHttpClient(),   // <-- ajoute cette ligne
-  ],
-}).catch(err => console.error(err));
+import { initKeycloak } from './keycloak-init';
+
+initKeycloak(() => {
+  console.log('🚀 Bootstrapping Angular application...');
+  bootstrapApplication(AppComponent, {
+    providers: [
+      provideRouter(routes),
+      provideHttpClient(withInterceptors([authInterceptor])),
+      importProvidersFrom(FormsModule)
+    ],
+  }).catch(err => console.error('💥 Bootstrap error:', err));
+});

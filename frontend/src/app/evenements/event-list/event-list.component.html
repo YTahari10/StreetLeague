@@ -1,57 +1,93 @@
 <div class="container mt-4">
+  <!-- User Info Header -->
+  <div class="user-info-header mb-3" *ngIf="currentUser">
+    <div class="alert alert-info">
+      <strong>👋 Bienvenue, {{ currentUser.firstName }}!</strong>
+      <span class="badge bg-primary ms-2">{{ authService.getPrimaryRole() }}</span>
+    </div>
+  </div>
   <h2 class="mb-3">🧾 Mes événements</h2>
 
-  <button class="btn btn-primary mb-3" (click)="goToCreate()">
+  <!-- Only ORGANIZER and ADMIN can create events -->
+  <button *ngIf="authService.canCreateEvents()" class="btn btn-primary mb-3" (click)="goToCreate()">
     ➕ Créer un événement
   </button>
 
-  <div class="mb-3">
-    <label for="sportFilter" class="form-label">🎯 Filtrer par sport :</label>
-    <select id="sportFilter" class="form-select" [(ngModel)]="selectedSport" (change)="filterEvents()">
-      <option value="">Tous</option>
-      <option *ngFor="let sport of sportsDisponibles" [value]="sport">
-        {{ getSportLabel(sport) }}
-      </option>
-    </select>
+  <div class="filter-section mb-4">
+    <div class="filter-container">
+      <div class="filter-header">
+        <i class="fas fa-filter filter-icon"></i>
+        <label for="sportFilter" class="filter-label">Filtrer par sport</label>
+      </div>
+      <div class="select-wrapper">
+        <select id="sportFilter" class="sport-filter-select" [(ngModel)]="selectedSport" (change)="filterEvents()">
+          <option value="" class="filter-option">🏃‍♂️ Tous les sports</option>
+          <option *ngFor="let sport of sportsDisponibles" [value]="sport" class="filter-option">
+            {{ getSportLabel(sport) }}
+          </option>
+        </select>
+        <i class="fas fa-chevron-down select-arrow"></i>
+      </div>
+    </div>
   </div>
 
-  <div *ngFor="let event of filteredEvents" class="card mb-3 shadow-sm">
-    <div class="card-body">
-      <h5 class="card-title">
-        📌 {{ event.nom }} - {{ getSportLabel(event.sport) }}
-      </h5>
-      <p class="card-text">
-        📍 {{ event.lieu }} <br />
-        🕒 {{ event.dateHeure | date: 'short' }}
-      </p>
-
-      <button class="btn btn-sm btn-outline-primary me-2" (click)="onEdit(event.id)">
-        ✏️ Modifier
-      </button>
-      <button class="btn btn-sm btn-outline-danger me-2" (click)="onDelete(event.id)">
-        ❌ Supprimer
-      </button>
-      <button class="btn btn-sm btn-outline-success me-2" (click)="onShare(event)">
-        📤 Partager
-      </button>
-
-      <div class="mt-3">
-        <h6>📅 Matchs associés :</h6>
-        <div *ngIf="matchesByEvent[event.id]?.length; else noMatch">
-          <ul class="list-group">
-            <li *ngFor="let match of matchesByEvent[event.id]" class="list-group-item">
-              ⚔️ Match entre {{ match.equipe1Nom }} et {{ match.equipe2Nom }} - 🕒 {{ match.dateHeure | date: 'short' }}
-            </li>
-          </ul>
-        </div>
-        <ng-template #noMatch>
-          <p class="text-muted">Aucun match pour cet événement.</p>
-        </ng-template>
-
-        <button class="btn btn-outline-success btn-sm mt-2" (click)="addMatch(event.id)">
-          ➕ Ajouter un match
+  <div *ngFor="let event of filteredEvents" class="event-card mb-4">
+    <div class="event-card-header">
+      <div class="sport-badge">
+        <span class="sport-icon">{{ getSportIcon(event.sport) }}</span>
+        <span class="sport-name">{{ getSportName(event.sport) }}</span>
+      </div>
+      <div class="event-actions" *ngIf="authService.canCreateEvents() && event.id">
+        <button class="action-btn edit-btn" (click)="onEdit(event.id!)" title="Modifier">
+          <i class="fas fa-edit"></i>
         </button>
-        <button type="button" class="btn btn-outline-success btn-sm mt-2" (click)="goToList(event.id)">Voir la liste des matchs</button>
+        <button class="action-btn delete-btn" (click)="onDelete(event.id!)" title="Supprimer">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="event-card-body">
+      <h3 class="event-title">{{ event.nom }}</h3>
+      
+      <div class="event-details">
+        <div class="detail-item">
+          <i class="fas fa-map-marker-alt detail-icon"></i>
+          <span class="detail-text">{{ event.lieu }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <i class="fas fa-calendar-alt detail-icon"></i>
+          <span class="detail-text">{{ event.dateHeure | date: 'EEEE d MMMM yyyy' }}</span>
+        </div>
+        
+        <div class="detail-item">
+          <i class="fas fa-clock detail-icon"></i>
+          <span class="detail-text">{{ event.dateHeure | date: 'HH:mm' }}</span>
+        </div>
+        
+        <div class="detail-item" *ngIf="event.description">
+          <i class="fas fa-info-circle detail-icon"></i>
+          <span class="detail-text description">{{ event.description }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="event-card-footer">
+      <div class="match-actions">
+        <button *ngIf="authService.canCreateMatches() && event.id" 
+                class="primary-btn" 
+                (click)="addMatch(event.id!)">
+          <i class="fas fa-plus"></i>
+          Ajouter un match
+        </button>
+        
+        <button *ngIf="event.id" 
+                class="secondary-btn" 
+                (click)="goToList(event.id!)">
+          <i class="fas fa-list"></i>
+          Voir les matchs
+        </button>
       </div>
     </div>
   </div>

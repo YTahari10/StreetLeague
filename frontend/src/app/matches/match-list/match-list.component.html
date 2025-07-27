@@ -1,5 +1,6 @@
 <div class="container">
 
+
   <h2>Liste des matchs</h2>
 
   <div class="table-responsive">
@@ -32,18 +33,51 @@
           </ul>
         </td>
         <td *ngIf="match.id">
-          <button class="btn btn-sm btn-danger me-1" (click)="deleteMatch(match.id)">Supprimer</button>
-          <button class="btn btn-sm btn-primary me-1" (click)="goToEdit(match.id)">Modifier</button>
-          <button class="btn btn-sm btn-secondary" (click)="goToInvitations(match.id)">Inviter</button>
+          <!-- Only COACH, ORGANIZER, or ADMIN can delete matches -->
+          <button 
+            *ngIf="authService.canDeleteMatches()" 
+            class="btn btn-sm btn-danger me-1" 
+            (click)="deleteMatch(match.id)">
+            🗑️ Supprimer
+          </button>
+          
+          <!-- Only COACH, ORGANIZER, or ADMIN can edit matches -->
+          <button 
+            *ngIf="authService.canCreateMatches()" 
+            class="btn btn-sm btn-primary me-1" 
+            (click)="goToEdit(match.id)">
+            ✏️ Modifier
+          </button>
+          
+          <!-- Only COACH, ORGANIZER, or ADMIN can send invitations -->
+          <button 
+            *ngIf="authService.canSendInvitations()" 
+            class="btn btn-sm btn-secondary me-1" 
+            (click)="goToInvitations(match.id)">
+            📧 Inviter
+          </button>
+          
+          <!-- PLAYERS can only view match details -->
+          <button 
+            *ngIf="authService.isPlayer() && !authService.canCreateMatches()" 
+            class="btn btn-sm btn-info" 
+            (click)="goToView(match.id)">
+            👀 Voir détails
+          </button>
         </td>
       </tr>
       </tbody>
     </table>
   </div>
 
-  <!--  <button class="btn-create" (click)="goToCreate()">Créer un nouveau match</button> -->
-  <button class="btn btn-secondary" (click)="goToEvents()">
-    ← Retour aux événements
-  </button>
+  <!-- Action Buttons -->
+  <div class="action-buttons mt-3">
+    <!-- All users can view events -->
+    <button 
+      class="btn btn-secondary" 
+      (click)="goToEvents()">
+      🎪 Voir les événements
+    </button>
+  </div>
 
  </div>

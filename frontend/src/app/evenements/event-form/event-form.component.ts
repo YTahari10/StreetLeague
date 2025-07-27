@@ -16,9 +16,19 @@ export class EventFormComponent implements OnInit {
   eventForm!: FormGroup;
   isEditMode = false;
   eventId?: string;
+  isSubmitting = false;
 
-  // Simulons une liste de centres d’intérêt/sports
-  sports = ['Foot', 'Basket', 'Musculation', 'Natation', 'Tennis'];
+  // Liste de sports avec icônes
+  sports = [
+    { value: 'football', label: 'Football', icon: '⚽' },
+    { value: 'basketball', label: 'Basketball', icon: '🏀' },
+    { value: 'tennis', label: 'Tennis', icon: '🎾' },
+    { value: 'volleyball', label: 'Volleyball', icon: '🏐' },
+    { value: 'natation', label: 'Natation', icon: '🏊‍♂️' },
+    { value: 'musculation', label: 'Musculation', icon: '🏋️‍♂️' },
+    { value: 'running', label: 'Course à pied', icon: '🏃‍♂️' },
+    { value: 'cycling', label: 'Cyclisme', icon: '🚴‍♂️' }
+  ];
 
   constructor(
     private fb: FormBuilder,
@@ -29,12 +39,13 @@ export class EventFormComponent implements OnInit {
 
   ngOnInit(): void {
     this.eventForm = this.fb.group({
-      nom: ['', Validators.required],
+      nom: ['', [Validators.required, Validators.minLength(3)]],
       sport: ['', Validators.required],
-      dateHeure: ['', Validators.required],
-      lieu: ['', Validators.required],
-      description: ['', Validators.required]
-    });
+      dateDebut: ['', [Validators.required, this.futureDateValidator]],
+      dateFin: ['', Validators.required],
+      lieu: ['', [Validators.required, Validators.minLength(5)]],
+      description: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(500)]]
+    }, { validators: this.dateRangeValidator });
 
     // Vérifie si on est en édition via paramètre d'URL
     this.route.paramMap.subscribe(params => {
@@ -53,12 +64,43 @@ export class EventFormComponent implements OnInit {
         this.eventForm.patchValue({
           nom: event.nom,
           sport: event.sport,
-          dateHeure: event.dateHeure,
+          dateDebut: event.dateDebut || event.dateHeure,
+          dateFin: event.dateFin || event.dateHeure,
           lieu: event.lieu,
           description: event.description
         });
       }
     });
+  }
+
+  // Custom validators
+  futureDateValidator(control: any) {
+    const selectedDate = new Date(control.value);
+    const now = new Date();
+    
+    if (control.value && selectedDate <= now) {
+      return { pastDate: true };
+    }
+    return null;
+  }
+
+  dateRangeValidator(group: any) {
+    const start = group.get('dateDebut')?.value;
+    const end = group.get('dateFin')?.value;
+    
+    if (start && end && new Date(start) >= new Date(end)) {
+      group.get('dateFin')?.setErrors({ endBeforeStart: true });
+      return { endBeforeStart: true };
+    }
+    
+    if (group.get('dateFin')?.errors?.['endBeforeStart']) {
+      delete group.get('dateFin')?.errors?.['endBeforeStart'];
+      if (Object.keys(group.get('dateFin')?.errors || {}).length === 0) {
+        group.get('dateFin')?.setErrors(null);
+      }
+    }
+    
+    return null;
   }
 
   onSubmit(): void {
@@ -67,30 +109,53 @@ export class EventFormComponent implements OnInit {
       return;
     }
 
-    const eventData: Event = this.eventForm.value;
+    this.isSubmitting = true;
+    const formData = this.eventForm.value;
 
-    // Fix format dateHeure (ajout des secondes)
-    if (eventData.dateHeure && eventData.dateHeure.length === 16) {
-      eventData.dateHeure = eventData.dateHeure + ':00';
-    }
+    // Convert date format and use dateDebut as the main dateHeure for backend
+    const adaptedData = {
+      nom: formData.nom,
+      sport: formData.sport,
+      description: formData.description,
+      lieu: formData.lieu,
+      dateHeure: this.formatDateForBackend(formData.dateDebut)
+    };
 
     if (this.isEditMode && this.eventId) {
-      this.eventService.updateEvent(this.eventId, eventData).subscribe(() => {
-        alert('Événement mis à jour avec succès');
-        this.router.navigate(['/evenements']);
-      }, error => {
-        alert('Erreur mise à jour event : ' + error.message);
+      this.eventService.updateEvent(this.eventId, adaptedData).subscribe({
+        next: () => {
+          alert('Événement mis à jour avec succès!');
+          this.router.navigate(['/evenements']);
+        },
+        error: (error) => {
+          alert('Erreur lors de la mise à jour : ' + error.message);
+          this.isSubmitting = false;
+        }
       });
     } else {
-      this.eventService.createEvent(eventData).subscribe(() => {
-        alert('Événement créé avec succès');
-        this.router.navigate(['/evenements']);
-      }, error => {
-        alert('Erreur création event : ' + error.message);
+      this.eventService.createEvent(adaptedData).subscribe({
+        next: () => {
+          alert('Événement créé avec succès!');
+          this.router.navigate(['/evenements']);
+        },
+        error: (error) => {
+          alert('Erreur lors de la création : ' + error.message);
+          this.isSubmitting = false;
+        }
       });
     }
   }
   onCancel(): void {
     this.router.navigate(['/evenements']);
+  }
+
+  // Helper method to format date for backend
+  private formatDateForBackend(dateString: string): string {
+    if (!dateString) return '';
+    
+    // Convert from HTML datetime-local format (YYYY-MM-DDTHH:mm) 
+    // to backend format (YYYY-MM-DDTHH:mm:ss)
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 19); // Remove milliseconds and timezone
   }
 }

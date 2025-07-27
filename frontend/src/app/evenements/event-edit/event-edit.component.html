@@ -1,44 +1,195 @@
-<div class="event-form-container">
-  <h2>Modifier un événement</h2>
+<div class="form-container">
+  <div class="form-header">
+    <h2 class="form-title">
+      <i class="fas fa-calendar-edit me-2"></i>
+      Modifier l'événement
+    </h2>
+    <p class="form-subtitle">
+      Modifiez les informations de votre événement sportif
+    </p>
+  </div>
 
-  <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" novalidate>
+  <form [formGroup]="eventForm" (ngSubmit)="onSubmit()" class="modern-form" novalidate>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="nom" class="form-label">
+            <i class="fas fa-tag me-1"></i>
+            Nom de l'événement *
+          </label>
+          <input 
+            id="nom" 
+            type="text" 
+            class="form-control" 
+            formControlName="nom" 
+            placeholder="Ex: Tournoi de Football du Printemps"
+            [class.is-invalid]="eventForm.get('nom')?.invalid && eventForm.get('nom')?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="eventForm.get('nom')?.errors && eventForm.get('nom')?.touched">
+            <div *ngIf="eventForm.get('nom')?.errors?.['required']">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              Le nom de l'événement est obligatoire
+            </div>
+            <div *ngIf="eventForm.get('nom')?.errors?.['minlength']">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              Le nom doit contenir au moins 3 caractères
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <label for="nom">Nom *</label>
-    <input id="nom" type="text" formControlName="nom" placeholder="Nom de l'événement" />
-    <div class="error" *ngIf="eventForm.get('nom')?.touched && eventForm.get('nom')?.invalid">
-      Le nom est obligatoire.
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="sport" class="form-label">
+            <i class="fas fa-running me-1"></i>
+            Sport / Activité *
+          </label>
+          <select 
+            id="sport" 
+            class="form-select" 
+            formControlName="sport"
+            [class.is-invalid]="eventForm.get('sport')?.invalid && eventForm.get('sport')?.touched"
+          >
+            <option value="">-- Sélectionner un sport --</option>
+            <option *ngFor="let sport of sports" [value]="sport.value">
+              {{ sport.icon }} {{ sport.label }}
+            </option>
+          </select>
+          <div class="invalid-feedback" *ngIf="eventForm.get('sport')?.errors && eventForm.get('sport')?.touched">
+            <i class="fas fa-exclamation-circle me-1"></i>
+            Veuillez sélectionner un sport
+          </div>
+        </div>
+      </div>
     </div>
 
-    <label for="sport">Centre d’intérêt / Sport *</label>
-    <select id="sport" formControlName="sport">
-      <option value="">-- Sélectionner un sport --</option>
-      <option *ngFor="let s of sports" [value]="s">{{ s }}</option>
-    </select>
-    <div class="error" *ngIf="eventForm.get('sport')?.touched && eventForm.get('sport')?.invalid">
-      Le sport est obligatoire.
+    <div class="row">
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="dateDebut" class="form-label">
+            <i class="fas fa-calendar-alt me-1"></i>
+            Date de début *
+          </label>
+          <input 
+            id="dateDebut" 
+            type="datetime-local" 
+            class="form-control" 
+            formControlName="dateDebut"
+            [class.is-invalid]="eventForm.get('dateDebut')?.invalid && eventForm.get('dateDebut')?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="eventForm.get('dateDebut')?.errors && eventForm.get('dateDebut')?.touched">
+            <div *ngIf="eventForm.get('dateDebut')?.errors?.['required']">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              La date de début est obligatoire
+            </div>
+            <div *ngIf="eventForm.get('dateDebut')?.errors?.['pastDate']">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              La date ne peut pas être dans le passé
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="form-group">
+          <label for="dateFin" class="form-label">
+            <i class="fas fa-calendar-check me-1"></i>
+            Date de fin *
+          </label>
+          <input 
+            id="dateFin" 
+            type="datetime-local" 
+            class="form-control" 
+            formControlName="dateFin"
+            [class.is-invalid]="eventForm.get('dateFin')?.invalid && eventForm.get('dateFin')?.touched"
+          />
+          <div class="invalid-feedback" *ngIf="eventForm.get('dateFin')?.errors && eventForm.get('dateFin')?.touched">
+            <div *ngIf="eventForm.get('dateFin')?.errors?.['required']">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              La date de fin est obligatoire
+            </div>
+            <div *ngIf="eventForm.get('dateFin')?.errors?.['endBeforeStart']">
+              <i class="fas fa-exclamation-circle me-1"></i>
+              La date de fin doit être après la date de début
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <label for="dateHeure">Date et heure *</label>
-    <input id="dateHeure" type="datetime-local" formControlName="dateHeure" />
-    <div class="error" *ngIf="eventForm.get('dateHeure')?.touched && eventForm.get('dateHeure')?.invalid">
-      La date et l'heure sont obligatoires.
+    <div class="form-group">
+      <label for="lieu" class="form-label">
+        <i class="fas fa-map-marker-alt me-1"></i>
+        Lieu de l'événement *
+      </label>
+      <input 
+        id="lieu" 
+        type="text" 
+        class="form-control" 
+        formControlName="lieu" 
+        placeholder="Ex: Stade Municipal, 123 Rue des Sports, Paris"
+        [class.is-invalid]="eventForm.get('lieu')?.invalid && eventForm.get('lieu')?.touched"
+      />
+      <div class="invalid-feedback" *ngIf="eventForm.get('lieu')?.errors && eventForm.get('lieu')?.touched">
+        <div *ngIf="eventForm.get('lieu')?.errors?.['required']">
+          <i class="fas fa-exclamation-circle me-1"></i>
+          Le lieu est obligatoire
+        </div>
+        <div *ngIf="eventForm.get('lieu')?.errors?.['minlength']">
+          <i class="fas fa-exclamation-circle me-1"></i>
+          Le lieu doit contenir au moins 5 caractères
+        </div>
+      </div>
     </div>
 
-    <label for="lieu">Lieu *</label>
-    <input id="lieu" type="text" formControlName="lieu" placeholder="Lieu de l'événement" />
-    <div class="error" *ngIf="eventForm.get('lieu')?.touched && eventForm.get('lieu')?.invalid">
-      Le lieu est obligatoire.
+    <div class="form-group">
+      <label for="description" class="form-label">
+        <i class="fas fa-align-left me-1"></i>
+        Description de l'événement
+      </label>
+      <textarea 
+        id="description" 
+        class="form-control" 
+        formControlName="description" 
+        rows="4" 
+        placeholder="Décrivez votre événement, les règles, les prix, etc."
+        [class.is-invalid]="eventForm.get('description')?.invalid && eventForm.get('description')?.touched"
+      ></textarea>
+      <div class="form-text">
+        <i class="fas fa-info-circle me-1"></i>
+        Optionnel - Ajoutez des détails sur votre événement
+      </div>
+      <div class="invalid-feedback" *ngIf="eventForm.get('description')?.errors && eventForm.get('description')?.touched">
+        <div *ngIf="eventForm.get('description')?.errors?.['maxlength']">
+          <i class="fas fa-exclamation-circle me-1"></i>
+          La description ne peut pas dépasser 500 caractères
+        </div>
+      </div>
     </div>
 
-    <label for="description">Description</label>
-    <textarea id="description" formControlName="description" rows="4" placeholder="Description..."></textarea>
-    <div class="error" *ngIf="eventForm.get('description')?.touched && eventForm.get('description')?.invalid">
-      La description est obligatoire.
-    </div>
-
-    <div class="buttons">
-      <button type="submit" [disabled]="eventForm.invalid">Mettre à jour</button>
-      <button type="button" (click)="onCancel()">Annuler</button>
+    <div class="form-actions">
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-lg me-3"
+        [disabled]="eventForm.invalid || isSubmitting"
+      >
+        <i class="fas fa-save me-2"></i>
+        <span *ngIf="!isSubmitting">Mettre à jour l'événement</span>
+        <span *ngIf="isSubmitting">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          Mise à jour...
+        </span>
+      </button>
+      
+      <button 
+        type="button" 
+        class="btn btn-outline-secondary btn-lg" 
+        (click)="onCancel()"
+        [disabled]="isSubmitting"
+      >
+        <i class="fas fa-times me-2"></i>
+        Annuler
+      </button>
     </div>
   </form>
 </div>

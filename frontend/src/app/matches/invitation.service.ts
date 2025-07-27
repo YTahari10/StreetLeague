@@ -14,6 +14,10 @@ export class InvitationService {
   sendInvitation(invitation: Invitation): Observable<Invitation> {
     return this.http.post<Invitation>(`${this.apiUrl}`, invitation);
   }
+
+  getAllInvitations(): Observable<Invitation[]> {
+    return this.http.get<Invitation[]>(this.apiUrl);
+  }
   getInvitationsByMatchId(matchId: string): Observable<Invitation[]> {
     return this.http.get<Invitation[]>(`http://localhost:8060/api/invitations/match/${matchId}`);
   }

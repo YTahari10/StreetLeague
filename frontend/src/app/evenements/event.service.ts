@@ -19,11 +19,13 @@ export class EventService {
     return this.http.get<Event>(`${this.baseUrl}/${id}`);
   }
 
-  createEvent(event: Event): Observable<Event> {
+  createEvent(event: Partial<Event>): Observable<Event> {
+    console.log('Creating event with data:', event);
     return this.http.post<Event>(this.baseUrl, event);
   }
 
-  updateEvent(id: string, event: Event): Observable<Event> {
+  updateEvent(id: string, event: Partial<Event>): Observable<Event> {
+    console.log('Updating event with data:', event);
     return this.http.put<Event>(`${this.baseUrl}/${id}`, event);
   }
 

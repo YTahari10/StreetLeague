@@ -5,6 +5,7 @@ import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { Match } from '../match.model';
 import { MatchService, MatchWithEquipes } from '../match.service';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-match-list',
@@ -15,15 +16,25 @@ import { MatchService, MatchWithEquipes } from '../match.service';
 })
 export class MatchListComponent implements OnInit {
   matches: MatchWithEquipes[] = [];
+  isFilteredByEvent = false; // Track if we're filtering by eventId
   private router = inject(Router);
   private matchService = inject(MatchService);
   private route = inject(ActivatedRoute);
+  public authService = inject(AuthService);
+  
+  // User information
+  currentUser = this.authService.getCurrentUser();
+  
+  constructor() {
+    // Role-based access control is now working correctly
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const eventId = params['eventId'];
 
-      if (eventId) {
+if (eventId) {
+        this.isFilteredByEvent = true; // Set the flag to true when filtering by eventId
         // Charge uniquement les matchs liés à l'événement
         this.matchService.getMatchesByEventId(eventId).subscribe(data => {
           console.log(`Matches reçus pour eventId=${eventId}:`, data);
@@ -70,6 +81,16 @@ export class MatchListComponent implements OnInit {
         console.log('Navigation vers modification réussie');
       } else {
         console.warn('Navigation vers modification échouée');
+      }
+    });
+  }
+
+  goToView(id: string): void {
+    this.router.navigate(['/matches/view', id]).then(success => {
+      if (success) {
+        console.log('Navigation vers affichage réussie');
+      } else {
+        console.warn('Navigation vers affichage échouée');
       }
     });
   }
